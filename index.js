@@ -13,29 +13,31 @@ function formatQueryParams(params) {
 
 function displayResults(responseJson) {
   // if there are previous results, remove them
-  console.log(responseJson);
   $('#results-list').empty();
+  if (responseJson.total === "0") {
+      $('#results-list').append(
+          `<li><p>There are no results in the states you entered, or you have not entered the two letter state codes without spaces. Please try again.</p></li>`
+      )
+    } else {
   // iterate through the items array
-  for (let i = 0; i < responseJson.data.length; i++){
-    // for each video object in the items 
-    //array, add a list item to the results 
-    //list with the video title, description,
-    //and thumbnail
-    $('#results-list').append(
-      `<li><h3>${responseJson.data[i].name}</h3>
-      <p>${responseJson.data[i].description}</p>
-      <p><a href="${responseJson.data[i].url}"
-      </li>`
-    )};
+        for (let i = 0; i < responseJson.data.length; i++){
+
+            $('#results-list').append(
+                `<li><h3>${responseJson.data[i].fullName}</h3>
+                <p>${responseJson.data[i].description}</p>
+                <p><a href="${responseJson.data[i].url}" target+"_blank">${responseJson.data[i].url}</a>
+                </li>`
+            )};
+    }
   //display the results section  
-  $('#results').removeClass('hidden');
+    $('#results').removeClass('hidden');
 };
 
 function getStateParkResults(searchTerm, maxResults=10) {
   const params = {
-    key: apiKey,
-    stateCode: searchTerm,
-    maxResults,
+    stateCode: searchTerm, 
+    api_key: apiKey,
+    limit: maxResults,
   };
   const queryString = formatQueryParams(params)
   const url = searchURL + '?' + queryString;
@@ -44,8 +46,8 @@ function getStateParkResults(searchTerm, maxResults=10) {
 
   fetch(url)
     .then(response => {
-      if (response.ok) {
-        return response.json();
+        if (response.ok) {
+            return response.json();
       }
       throw new Error(response.statusText);
     })
